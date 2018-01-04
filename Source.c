@@ -16,64 +16,23 @@ typedef struct Shop
 void add();
 void add_file( int, float, long int, char *);
 void show();
-Shop *show_elem(char *);
 void save();
 void load();
 void end();
 void delete_one(Shop *temp);
+void show_one();
+
+Shop *show_elem(char *);
 Shop *first = NULL;
 Shop *last = NULL;
+
 void menu_main();
 
-void show_one() {
-		Shop *temp;
-		temp = first;
-		int a=1;
-		if (temp == NULL) {
-			printf("Lista jest pusta");
-			return;
-		}
-		int opcja = 3;
-		do
-		{
-			printf("Wpisz: ");
-			scanf("%d", &opcja);
-			switch (opcja)
-			{
-			case 1:
-				if (temp->next == NULL)
-				{
-					printf("Brak rekordu");
-				}
-				else {
-					temp = temp->next;
-					printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
-
-				}
-				break;
-			case 2:
-				if (temp->prev == NULL)
-				{
-					printf("Brak rekordu");
-				}
-				else {
-					temp = temp->prev;
-					printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
-
-				}
-				break;
-			case 3:
-				return;
-			default:
-				break;
-			}
-		} while (opcja != 4);
-	}
 int main()
-
 {
 	int opcja = 3;
 	int a;
+	/*
 	do
 	{
 		menu_main();
@@ -112,7 +71,15 @@ int main()
 			break;
 		}
 	} while (opcja);
-	
+	*/
+	load();
+	show();
+
+	scanf("%f", &a);
+	printf("%d;%d;%f;%d;%s\n", show_elem(a)->number, show_elem(a)->amount, show_elem(a)->price, show_elem(a)->bar_code, show_elem(a)->name);
+	system("pause");
+	return 0;
+
 }
 void add()
 {
@@ -181,13 +148,13 @@ void show()
 		temp = temp->next;
 	}
 }
-Shop *show_elem(char *data)
+Shop *show_elem(float data)
 {
 	Shop *temp;
 	temp = first;
 	while (temp != NULL)
 	{
-		if (strcmp(temp, data) == 0)
+		if ((data==temp->amount)|| (data == temp->price)|| (data == temp->number)|| (data == temp->bar_code))
 		{
 			return temp;
 		}
@@ -195,7 +162,6 @@ Shop *show_elem(char *data)
 	}
 	return NULL;
 }
-
 void save() {
 	int i, j;
 	Shop *temp;
@@ -222,7 +188,7 @@ void load() {
 	int temp;
 	long int bar_code;
 	char *name;
-	//name = (char *)malloc(200 * sizeof(char));
+	name = (char *)malloc(200 * sizeof(char));
 	file = fopen("out.csv", "r");
 	if (file == NULL)
 	{
@@ -244,9 +210,7 @@ void load() {
 		{
 			name = (char *)malloc(200 * sizeof(char));
 			fscanf(file, "%d;%d;%f;%d;%s\n", &temp, &amount, &price, &bar_code, name);
-			printf("%s",name);
 			add_file( amount, price, bar_code, name);
-			free(name);
 		}
 		puts("Pomyslnie otwarto plik");
 		return;
@@ -277,7 +241,6 @@ void menu_main() {
 	printf("6-Wyszukaj\n");
 	printf("7-Zakoncz\n");
 }
-
 void delete_one(Shop *temp)
 {
 	if (temp == NULL) {
@@ -302,7 +265,50 @@ void delete_one(Shop *temp)
 	}
 	free(temp);
 }
+void show_one() {
+	Shop *temp;
+	temp = first;
+	int a = 1;
+	if (temp == NULL) {
+		printf("Lista jest pusta");
+		return;
+	}
+	int opcja = 3;
+	do
+	{
+		printf("Wpisz: ");
+		scanf("%d", &opcja);
+		switch (opcja)
+		{
+		case 1:
+			if (temp->next == NULL)
+			{
+				printf("Brak rekordu");
+			}
+			else {
+				temp = temp->next;
+				printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
 
+			}
+			break;
+		case 2:
+			if (temp->prev == NULL)
+			{
+				printf("Brak rekordu");
+			}
+			else {
+				temp = temp->prev;
+				printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
+
+			}
+			break;
+		case 3:
+			return;
+		default:
+			break;
+		}
+	} while (opcja != 4);
+}
 void sort(Shop *first)
 {
 	Shop *newfirst = NULL;
