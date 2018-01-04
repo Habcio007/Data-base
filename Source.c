@@ -16,13 +16,14 @@ typedef struct Shop
 void add();
 void add_file( int, float, long int, char *);
 void show();
-void show_one();
-void search_one(char *);
+Shop *show_elem(char *);
 void save();
 void load();
 void end();
+void delete_one(Shop *temp);
 Shop *first = NULL;
 Shop *last = NULL;
+void menu_main();
 
 void show_one() {
 		Shop *temp;
@@ -32,70 +33,86 @@ void show_one() {
 			printf("Lista jest pusta");
 			return;
 		}
-		while (temp != NULL)
+		int opcja = 3;
+		do
 		{
-			scanf("%d", &a);
-			if(a==1)
-			{ 
+			printf("Wpisz: ");
+			scanf("%d", &opcja);
+			switch (opcja)
+			{
+			case 1:
 				if (temp->next == NULL)
 				{
-					return;
+					printf("Brak rekordu");
 				}
 				else {
 					temp = temp->next;
+					printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
+
 				}
-			}
-			if (a == 2)
-			{
+				break;
+			case 2:
 				if (temp->prev == NULL)
 				{
-					return;
+					printf("Brak rekordu");
 				}
 				else {
 					temp = temp->prev;
+					printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
+
 				}
+				break;
+			case 3:
+				return;
+			default:
+				break;
 			}
-			if (a == "end")
-			{
-				return NULL;
-			}
-			printf("%d;%d;%f;%d;%s\n", temp->number, temp->amount, temp->price, temp->bar_code, temp->name);
-		}
+		} while (opcja != 4);
 	}
 int main()
+
 {
-	load();
-	add();
-	show_one();
-	system("pause");
-	/*
 	int opcja = 3;
+	int a;
 	do
 	{
+		menu_main();
 		printf("Wpisz: ");
 		scanf("%d", &opcja);
 		switch (opcja)
 		{
 		case 1:
 			add();
-			opcja = 4;
 			break;
 		case 2:
-			save();
-			opcja = 4;
+			load();
 			break;
 		case 3:
-			return 0;
+			save();
+			break;
+		case 4:
+			show_one();
 			break;
 		case 5:
-			search_one(2);
-			opcja = 4;
+			show();
+			break;
+		case 6:
+			scanf("%d", &a);
+			printf("%d;%d;%f;%d;%s\n", show_elem(a)->number, show_elem(a)->amount, show_elem(a)->price, show_elem(a)->bar_code, show_elem(a)->name);
+			break;
+		case 7:
+			scanf("%d", &a);
+			delete_one(show_elem(a));
+			break;
+		case 9:
+			end();
+			return 0;
 			break;
 		default:
-			opcja = 4;
 			break;
 		}
-	} while (opcja == 4);*/
+	} while (opcja);
+	
 }
 void add()
 {
@@ -164,24 +181,21 @@ void show()
 		temp = temp->next;
 	}
 }
-void search_one(char *a)
+Shop *show_elem(char *data)
 {
 	Shop *temp;
 	temp = first;
-	if (temp == NULL) {
-		printf("sdadada");
-		return;
-	}
 	while (temp != NULL)
 	{
-		if (*temp->name == a)
+		if (strcmp(temp, data) == 0)
 		{
-			printf("%d, %s\n", temp->number, temp->name);
+			return temp;
 		}
 		temp = temp->next;
 	}
 	return NULL;
 }
+
 void save() {
 	int i, j;
 	Shop *temp;
@@ -203,9 +217,12 @@ void load() {
 	FILE *file;
 	int number, amount;
 	float price;
+	char znak;
+	int i, n = 0;
+	int temp;
 	long int bar_code;
 	char *name;
-	name = (char *)malloc(100 * sizeof(char));
+	//name = (char *)malloc(200 * sizeof(char));
 	file = fopen("out.csv", "r");
 	if (file == NULL)
 	{
@@ -213,11 +230,23 @@ void load() {
 		return;
 	}
 	else {
-		int i;
-		for(i=0;i<2;i++)
+		
+		while (!feof(file))	
 		{
-			fscanf(file,"%d;%f;%d;%s\n", &amount, &price, &bar_code, name);
+			znak = fgetc(file);
+			if (znak == '\n')
+			{
+				n++;
+			}
+		}
+		rewind(file);
+		for(i=0;i<n;i++)
+		{
+			name = (char *)malloc(200 * sizeof(char));
+			fscanf(file, "%d;%d;%f;%d;%s\n", &temp, &amount, &price, &bar_code, name);
+			printf("%s",name);
 			add_file( amount, price, bar_code, name);
+			free(name);
 		}
 		puts("Pomyslnie otwarto plik");
 		return;
@@ -239,5 +268,63 @@ void end() {
 	}
 	free(temp);
 }
+void menu_main() {
+	printf("1-Dodaj rekord\n");
+	printf("2-Wczytaj baze danych z pliku csv\n");
+	printf("3-Zapisz baze danych dp pliku csv\n");
+	printf("4-Wyswietl pierwszy\n");
+	printf("5-Wyswietl wszystkie\n");
+	printf("6-Wyszukaj\n");
+	printf("7-Zakoncz\n");
+}
 
+void delete_one(Shop *temp)
+{
+	if (temp == NULL) {
+		printf("Brak listy");
+		return;
+	}
+	if ((temp == first) && (temp == last)) {
+		free(temp);
+		return;
+	}
+	if (temp == first) {
+		first = temp->next;
+		first->prev = NULL;
+	}
+	else if (temp == last) {
+		last = temp->prev;
+		last->next = NULL;
+	}
+	else {
+		temp->prev->next = temp->next;
+		temp->next->prev = temp->prev;
+	}
+	free(temp);
+}
 
+void sort(Shop *first)
+{
+	Shop *newfirst = NULL;
+	Shop *max, *popmax, *tmp;
+	while (first)
+	{
+		max = first;
+		popmax = NULL;
+		tmp = first;
+		while (tmp->next)
+		{
+			if (tmp->next->price > max->price)
+			{
+				popmax = tmp;
+				max = tmp->next;
+			}
+			tmp = tmp->next;
+		}
+		if (popmax) popmax->next = max->next;
+		else first = max->next;
+		max->next = newfirst;
+		newfirst = max;
+	}
+	first = newfirst;
+}
