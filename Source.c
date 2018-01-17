@@ -559,7 +559,6 @@ void menu_show() {
 
 }
 void menu_sort() {
-
 	menu_sort_m();
 	int menu_1;
 	menu_1 = getch();
@@ -572,11 +571,11 @@ void menu_sort() {
 		break;
 	case 2:
 		system("cls");
-		sort_number();
+		sort_amount();
 		break;
 	case 3:
 		system("cls");
-		sort_amount();
+		sort_price();
 		break;
 	case 4:
 		system("cls");
